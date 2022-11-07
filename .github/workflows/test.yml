@@ -9,7 +9,7 @@ jobs:
   check:
     name: Test GitHub Action
     runs-on: ubuntu-latest
-    output:
+    outputs:
       check: ${{ steps.check_ver.outputs.result }}
       edge: ${{ steps.check_ver.outputs.edge }}
       latest: ${{ steps.check_ver.outputs.latest }}
