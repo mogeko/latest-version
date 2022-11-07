@@ -24,7 +24,7 @@ jobs:
       - name: Lint check
         run: yarn lint
       - name: Test this actions
-        uses: .
+        uses: ./
         id: check_ver
         with:
           repo: Wind4/vlmcsd
