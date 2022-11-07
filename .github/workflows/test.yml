@@ -6,9 +6,14 @@ on:
     branches: [master]
 
 jobs:
-  test:
+  check:
     name: Test GitHub Action
     runs-on: ubuntu-latest
+    output:
+      check: ${{ steps.check_ver.outputs.result }}
+      edge: ${{ steps.check_ver.outputs.edge }}
+      latest: ${{ steps.check_ver.outputs.latest }}
+      is_update: ${{ steps.check_ver.outputs.is_update }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -18,3 +23,29 @@ jobs:
           node-version: 16
       - name: Lint check
         run: yarn lint
+      - name: Test this actions
+        uses: .
+        id: check_ver
+        with:
+          repo: Wind4/vlmcsd
+          out: true
+      - name: Update metadata
+        uses: actions/upload-artifact@v3
+        with:
+          name: metadata
+          path: ./latest-version/index.json
+
+  print:
+    name: Print the result from check
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - name: Print Output
+        run: |
+          echo "${{ needs.check.outputs.result }}"
+          echo "${{ needs.check.outputs.edge }}"
+          echo "${{ needs.check.outputs.latest }}"
+          echo "${{ needs.check.outputs.is_update }}"
+      - name: Is it update
+        if: ${{ needs.check.outputs.is_update }}
+        run: echo "It seems to have updates."
