@@ -26,7 +26,7 @@ jobs:
         uses: ./
         id: check_ver
         with:
-          repo: Wind4/vlmcsd
+          repo: mogeko/latest-version
           out: true
       - name: Update metadata
         uses: actions/upload-artifact@v3
