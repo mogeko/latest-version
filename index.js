@@ -52,7 +52,7 @@ async function main() {
     core.setOutput("is_update", false);
   }
 
-  const outDir = core.getInput("outDir") ?? "./latest-version/";
+  const outDir = core.getInput("out_dir", { required: false });
   if (core.getInput("out") && outDir) {
     await io.mkdirP(path.resolve(outDir));
     await fs.writeFile(

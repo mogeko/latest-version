@@ -10,9 +10,10 @@ inputs:
   out:
     description: ""
     required: false
-  outDir:
+  out_dir:
     description: ""
     required: false
+    default: "./latest-version/"
 outputs:
   is_update:
     description: "Are the any update for the tracked repo."
