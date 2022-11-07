@@ -20,15 +20,16 @@ async function main() {
     R.pipe(R.prop("name"), R.includes(R.__, ["master", "main"]))
   )(R.prop("data", branch));
   const versions = R.map(cut)({ latest, edge });
-
-  core.setOutput("result", {
+  const result = {
     repo: {
       name: `${owner}/${repo}`,
       url: `https://github.com/${owner}/${repo}`,
     },
     versions,
     timestamp: new Date().toISOString(),
-  });
+  };
+
+  core.setOutput("result", result);
 
   const refer = await fetch(core.getInput("refer"))
     .then((response) => response.json())
