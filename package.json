@@ -4,6 +4,11 @@
     "lint": "prettier --check .",
     "format": "prettier --write ."
   },
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1",
+    "ramda": "^0.28.0"
+  },
   "devDependencies": {
     "prettier": "^2.7.1"
   },
