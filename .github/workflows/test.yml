@@ -1,7 +1,6 @@
 name: Test
 on:
   push:
-    branches-ignore: [master]
   pull_request:
     branches: [master]
 
@@ -46,6 +45,9 @@ jobs:
           echo "${{ needs.check.outputs.edge }}"
           echo "${{ needs.check.outputs.latest }}"
           echo "${{ needs.check.outputs.is_update }}"
-      - name: Is it update
-        if: ${{ needs.check.outputs.is_update }}
+      - name: If is_update is true
+        if: ${{ needs.check.outputs.is_update }} == 'true'
         run: echo "It seems to have updates."
+      - name: If is_update is false
+        if: ${{ needs.check.outputs.is_update }} == 'false'
+        run: echo "It seems to have no updates."
