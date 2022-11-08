@@ -48,16 +48,13 @@ function handleData({ tags, branchs }) {
 }
 
 function checkUpdate(refer, versions) {
-  const isLatestUpdate = !R.equals(
-    R.path(["versions", "latest", "sha"], refer),
-    R.path(["latest", "sha"], versions)
-  );
-  const isEdgeUpdate = !R.equals(
-    R.path(["versions", "edge", "sha"], refer),
-    R.path(["edge", "sha"], versions)
-  );
+  const checkWith = (n) => {
+    const left = R.path(["versions", n, "sha"]);
+    const right = R.path([n, "sha"]);
+    return R.useWith(R.equals, [left, right]);
+  };
 
-  return [isLatestUpdate, isEdgeUpdate];
+  return R.juxt([checkWith("latest"), checkWith("edge")])(refer, versions);
 }
 
 function genDockerMeta(versions, [isLatestUpdate, isEdgeUpdate]) {
