@@ -79,13 +79,11 @@ function genDockerMeta(versions, [isLatestUpdate, isEdgeUpdate]) {
 }
 
 function getCacheKey(versions) {
-  return R.pipe(
-    // prettier-ignore
-    R.paths([["edge", "sha"], ["latest", "sha"]]),
-    R.reject(R.isEmpty),
-    R.union(["latest", "version"]),
-    R.join("-")
-  )(versions);
+  // prettier-ignore
+  const shas = R.paths([["edge", "sha"], ["latest", "sha"]])(versions);
+  const strs = R.reject(R.isEmpty, R.union(["latest", "version"], shas));
+
+  return R.join("-")(strs);
 }
 
 async function cachingReport(data, { outDir, key, restoreKeys }) {
