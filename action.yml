@@ -1,13 +1,28 @@
 name: "Latest Version"
 description: "Checks and outputs the latest version of the specified repo."
 inputs:
-  # who-to-greet: # id of input
-  #   description: "Who to greet"
-  #   required: true
-  #   default: "World"
+  repo:
+    description: ""
+    required: true
+  refer:
+    description: ""
+    required: false
+  out:
+    description: ""
+    required: false
+  out_dir:
+    description: ""
+    required: false
+    default: "./latest-version/"
 outputs:
-  # time: # id of output
-  #   description: "The time we greeted you"
+  is_update:
+    description: "Are the any update for the tracked repo."
+  result:
+    description: ""
+  edge:
+    description: ""
+  latest:
+    description: ""
 runs:
   using: "node16"
   main: "index.js"
