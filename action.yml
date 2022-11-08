@@ -5,12 +5,15 @@ inputs:
     description: "The repo that needs to be watched."
     required: true
   refer:
+    deprecationMessage: "Now we use cache to store reports, `refer` is no longer needed."
     description: "A URL that points to the latest report so far."
     required: false
   out:
+    deprecationMessage: "In order to be used by cache, `out` is set to be mandatory."
     description: "A Boolean to control whether the report is output to the file."
     required: false
   out_dir:
+    deprecationMessage: "For simplicity, `out_dir` will always be `./.latest-version/`"
     description: "If `out` is true, output the report to this directory."
     required: false
     default: "./latest-version/"
