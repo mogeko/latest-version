@@ -9,14 +9,14 @@ inputs:
   out: # deprecated
     deprecationMessage: "In order to be used by cache, `out` is set to be mandatory."
   out_dir: # deprecated
-    deprecationMessage: "For simplicity, `out_dir` will always be `./.latest-version/`"
+    deprecationMessage: "For simplicity, `out_dir` will always be `./.latest-version/`."
 outputs:
   is_update:
     description: "Are the any update for the tracked repo."
   result:
     description: "The Result, a report of the latest version information of the repo being watched."
   docker_tags:
-    description: "The `tags` information that can be used by `docker/metadata-action` action"
+    description: "The `tags` information that can be used by `docker/metadata-action` action."
 runs:
   using: "node16"
   main: "index.js"
