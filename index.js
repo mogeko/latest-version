@@ -1,16 +1,16 @@
 require("./.pnp.cjs").setup(); // load pnp module
 
 const core = require("@actions/core");
+const cache = require("@actions/cache");
 const io = require("@actions/io");
-const { Octokit } = require("@octokit/rest");
-const fetch = require("node-fetch");
 const path = require("path");
 const fs = require("fs").promises;
 const R = require("ramda");
 
+const octokit = new require("@octokit/rest").Octokit();
+
 async function main() {
-  const octokit = new Octokit();
-  const [owner, repo] = core.getInput("repo", { required: true }).split("/");
+  const [owner, repo] = R.split("/")(core.getInput("repo", { required: true }));
 
   const tags = await octokit.repos.listTags({ owner, repo });
   const branchs = await octokit.rest.repos.listBranches({ owner, repo });
@@ -23,24 +23,15 @@ async function main() {
     versions,
     timestamp: new Date().toISOString(),
   };
+  const key = getCacheKey(versions);
+  const restoreKeys = ["latest-version-"];
+  const outDir = "./.latest-version/";
+  const refer = await cachingReport(result, { outDir, key, restoreKeys });
+  const enable = checkUpdate(refer, versions);
 
   core.setOutput("result", result);
-
-  const refer = await fetch(core.getInput("refer"))
-    .then((response) => response.json())
-    .catch((_) => null);
-  if (refer) {
-    const enable = checkUpdate(refer, versions);
-
-    core.setOutput("docker_tags", genDockerMeta(versions, enable));
-    core.setOutput("is_update", R.any(R.identity)(enable));
-  } else {
-    core.setOutput("is_update", false);
-  }
-
-  if (core.getInput("out")) {
-    await saveReport(result);
-  }
+  core.setOutput("docker_tags", genDockerMeta(versions, enable));
+  core.setOutput("is_update", R.any(R.identity)(enable));
 }
 
 function handleData({ tags, branchs }) {
@@ -50,7 +41,7 @@ function handleData({ tags, branchs }) {
   )(R.prop("data", branchs));
 
   return R.map((n) => {
-    if (!n) return null;
+    if (R.isEmpty(n)) return null;
     const [name, sha] = R.paths([["name"], ["commit", "sha"]])(n);
     return { name, sha, short_sha: R.slice(0, 7, sha) };
   })({ latest, edge });
@@ -83,12 +74,28 @@ function genDockerMeta(versions, [isLatestUpdate, isEdgeUpdate]) {
   return R.join("\n")(R.union(latestOut, edgeOut));
 }
 
-async function saveReport(data) {
-  const outDir = path.resolve("./.latest-version/");
-  const outFile = path.resolve(outDir, "index.json");
-  const result = JSON.stringify(data, null, 2);
-  await io.mkdirP(outDir);
-  await fs.writeFile(outFile, result);
+function getCacheKey(versions) {
+  return R.pipe(
+    // prettier-ignore
+    R.paths([["edge", "sha"], ["latest", "sha"]]),
+    R.reject(R.isEmpty),
+    R.union(["latest", "version"]),
+    R.join("-")
+  )(versions);
+}
+
+async function cachingReport(data, { outDir, key, restoreKeys }) {
+  const targetFile = path.resolve(outDir, "index.json");
+  if (await cache.restoreCache([outDir], key, restoreKeys)) {
+    return await fs.readFile(targetFile, { encoding: "utf8" });
+  } else {
+    const json = JSON.stringify(data, null, 2);
+    await io.mkdirP(path.resolve(outDir));
+    await fs.writeFile(targetFile, json, { encoding: "utf8" });
+    core.info(await cache.saveCache([outDir], key));
+
+    return data;
+  }
 }
 
 main().catch((err) => core.setFailed(err.message));
