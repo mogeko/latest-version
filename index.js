@@ -58,7 +58,7 @@ async function main() {
       R.map((v) => `type=raw,value=${v},enable=${isEdgeUpdate}`)
     )(versions);
 
-    core.setOutput("docker", R.join("\n")(R.union(latestOut, edgeOut)));
+    core.setOutput("docker_tags", R.join("\n")(R.union(latestOut, edgeOut)));
     core.setOutput("is_update", isEdgeUpdate || isLatestUpdate);
   } else {
     core.setOutput("is_update", false);

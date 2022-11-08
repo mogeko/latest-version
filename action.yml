@@ -19,7 +19,7 @@ outputs:
     description: "Are the any update for the tracked repo."
   result:
     description: "The Result, a report of the latest version information of the repo being watched."
-  docker:
+  docker_tags:
     description: "The `tags` information that can be used by `docker/metadata-action` action"
 runs:
   using: "node16"
