@@ -59,10 +59,10 @@ jobs:
           echo "${{ needs.check.outputs.latest }}"
           echo "${{ needs.check.outputs.is_update }}"
       - name: If is_update is true
-        if: ${{ needs.check.outputs.is_update }} == 'true'
+        if: needs.check.outputs.is_update == 'true'
         run: echo "It seems to have updates."
       - name: If is_update is false
-        if: ${{ needs.check.outputs.is_update }} == 'false'
+        if: needs.check.outputs.is_update == 'false'
         run: echo "It seems to have no updates."
 
   deploy:
