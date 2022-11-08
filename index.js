@@ -17,7 +17,7 @@ async function main() {
   const cut = (n) => {
     if (!n) return null;
     const [name, sha] = R.paths([["name"], ["commit", "sha"]])(n);
-    return { name, sha, sha_short: R.slice(0, 7, sha) };
+    return { name, sha, short_sha: R.slice(0, 7, sha) };
   };
   const latest = R.head(R.prop("data", tags));
   const edge = R.find(
@@ -48,12 +48,12 @@ async function main() {
       R.path(["edge", "sha"], versions)
     );
     const latestOut = R.pipe(
-      R.props(["sha_short", "name"]),
+      R.props(["short_sha", "name"]),
       R.append("latest"),
       R.map((v) => `type=raw,value=${v},enable=${isLatestUpdate}`)
     )(R.prop("latest", versions));
     const edgeOut = R.pipe(
-      R.path(["edge", "sha_short"]),
+      R.path(["edge", "short_sha"]),
       R.append(R.__, ["edge"]),
       R.map((v) => `type=raw,value=${v},enable=${isEdgeUpdate}`)
     )(versions);
