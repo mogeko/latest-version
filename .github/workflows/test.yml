@@ -19,10 +19,9 @@ jobs:
     name: Test GitHub Action
     runs-on: ubuntu-latest
     outputs:
-      result: ${{ steps.check_ver.outputs.result }}
-      edge: ${{ steps.check_ver.outputs.edge }}
-      latest: ${{ steps.check_ver.outputs.latest }}
       is_update: ${{ steps.check_ver.outputs.is_update }}
+      result: ${{ steps.check_ver.outputs.result }}
+      docker: ${{ steps.check_ver.outputs.docker }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -54,10 +53,9 @@ jobs:
     steps:
       - name: Print Output
         run: |
-          echo "${{ needs.check.outputs.result }}"
-          echo "${{ needs.check.outputs.edge }}"
-          echo "${{ needs.check.outputs.latest }}"
           echo "${{ needs.check.outputs.is_update }}"
+          echo "${{ needs.check.outputs.result }}"
+          echo "${{ needs.check.outputs.docker }}"
       - name: If is_update is true
         if: needs.check.outputs.is_update == 'true'
         run: echo "It seems to have updates."

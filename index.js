@@ -14,7 +14,11 @@ async function main() {
 
   const tags = await octokit.repos.listTags({ owner, repo });
   const branch = await octokit.rest.repos.listBranches({ owner, repo });
-  const cut = (n) => (n ? { name: n.name, sha: n.commit.sha } : null);
+  const cut = (n) => {
+    if (!n) return null;
+    const [name, sha] = R.paths([["name"], ["commit", "sha"]])(n);
+    return { name, sha, short_sha: R.slice(0, 7, sha) };
+  };
   const latest = R.head(R.prop("data", tags));
   const edge = R.find(
     R.pipe(R.prop("name"), R.includes(R.__, ["master", "main"]))
@@ -35,20 +39,27 @@ async function main() {
     .then((response) => response.json())
     .catch((_) => null);
   if (refer) {
-    const isLatest = !R.eqProps("sha", refer.versions.latest, versions.latest);
-    const latestData = R.pipe(
-      R.map((v) => `type=raw,value=${v},enable=${isLatest}`),
-      R.join("\n")
-    )(["latest", versions.latest.name, versions.latest.sha.slice(0, 7)]);
-    core.setOutput("latest", latestData);
-    core.setOutput("is_update", isLatest);
-    const isEdge = !R.eqProps("sha", refer.versions.edge, versions.edge);
-    const edgeData = R.pipe(
-      R.map((v) => `type=raw,value=${v},enable=${isEdge}`),
-      R.join("\n")
-    )(["latest", versions.edge.sha.slice(0, 7)]);
-    core.setOutput("edge", edgeData);
-    core.setOutput("is_update", isEdge);
+    const isLatestUpdate = !R.equals(
+      R.path(["versions", "latest", "sha"], refer),
+      R.path(["latest", "sha"], versions)
+    );
+    const isEdgeUpdate = !R.equals(
+      R.path(["versions", "edge", "sha"], refer),
+      R.path(["edge", "sha"], versions)
+    );
+    const latestOut = R.pipe(
+      R.props(["short_sha", "name"]),
+      R.append("latest"),
+      R.map((v) => `type=raw,value=${v},enable=${isLatestUpdate}`)
+    )(R.prop("latest", versions));
+    const edgeOut = R.pipe(
+      R.path(["edge", "short_sha"]),
+      R.append(R.__, ["edge"]),
+      R.map((v) => `type=raw,value=${v},enable=${isEdgeUpdate}`)
+    )(versions);
+
+    core.setOutput("docker", R.join("\n")(R.union(latestOut, edgeOut)));
+    core.setOutput("is_update", isEdgeUpdate || isLatestUpdate);
   } else {
     core.setOutput("is_update", false);
   }
