@@ -29,7 +29,6 @@ jobs:
         uses: ./
         with:
           repo: mogeko/latest-version
-          out: true
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
