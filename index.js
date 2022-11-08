@@ -74,4 +74,8 @@ async function main() {
   }
 }
 
-main();
+try {
+  main(); // run this action script
+} catch (err) {
+  core.setFailed(err.message);
+}
