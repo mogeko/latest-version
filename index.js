@@ -50,7 +50,7 @@ async function main() {
     const edgeData = R.pipe(
       R.map((v) => `type=raw,value=${v},enable=${isEdgeUpdate}`),
       R.join("\n")
-    )(["latest", versions.edge.sha.slice(0, 7)]);
+    )(["edge", versions.edge.sha.slice(0, 7)]);
 
     core.setOutput("edge", edgeData);
     core.setOutput("latest", latestData);
