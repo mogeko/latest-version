@@ -7,7 +7,7 @@ const path = require("path");
 const fs = require("fs").promises;
 const R = require("ramda");
 
-const octokit = new require("@octokit/rest").Octokit();
+const octokit = new (require("@octokit/rest").Octokit)();
 
 async function main() {
   const [owner, repo] = R.split("/")(core.getInput("repo", { required: true }));
