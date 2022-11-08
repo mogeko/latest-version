@@ -56,6 +56,7 @@ function checkUpdate(refer, versions) {
     R.path(["versions", "edge", "sha"], refer),
     R.path(["edge", "sha"], versions)
   );
+
   return [isLatestUpdate, isEdgeUpdate];
 }
 
@@ -85,16 +86,20 @@ function getCacheKey(versions) {
 }
 
 async function cachingReport(data, { outDir, key, restoreKeys }) {
-  const targetFile = path.resolve(outDir, "index.json");
-  if (await cache.restoreCache([outDir], key, restoreKeys)) {
+  const targetDir = path.resolve(outDir);
+  const targetFile = path.resolve(targetDir, "index.json");
+  const saveFile = async (result) => {
+    const json = JSON.stringify(result, null, 2);
+    await io.mkdirP(targetDir);
+    await fs.writeFile(targetFile, json, { encoding: "utf8" });
+    await cache.saveCache([targetDir], key);
+    return result;
+  };
+
+  if (await cache.restoreCache([targetDir], key, restoreKeys)) {
     return await fs.readFile(targetFile, { encoding: "utf8" });
   } else {
-    const json = JSON.stringify(data, null, 2);
-    await io.mkdirP(path.resolve(outDir));
-    await fs.writeFile(targetFile, json, { encoding: "utf8" });
-    core.info(await cache.saveCache([outDir], key));
-
-    return data;
+    return await saveFile(data);
   }
 }
 
