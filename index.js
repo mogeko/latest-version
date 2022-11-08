@@ -39,22 +39,22 @@ async function main() {
       R.path(["versions", "latest", "sha"], refer),
       R.path(["latest", "sha"], versions)
     );
-    const latestData = R.pipe(
-      R.map((v) => `type=raw,value=${v},enable=${isLatestUpdate}`),
-      R.join("\n")
-    )(["latest", versions.latest.name, versions.latest.sha.slice(0, 7)]);
-    core.setOutput("latest", latestData);
-    core.setOutput("is_update", isLatestUpdate);
     const isEdgeUpdate = !R.equals(
       R.path(["versions", "edge", "sha"], refer),
       R.path(["edge", "sha"], versions)
     );
+    const latestData = R.pipe(
+      R.map((v) => `type=raw,value=${v},enable=${isLatestUpdate}`),
+      R.join("\n")
+    )(["latest", versions.latest.name, versions.latest.sha.slice(0, 7)]);
     const edgeData = R.pipe(
       R.map((v) => `type=raw,value=${v},enable=${isEdgeUpdate}`),
       R.join("\n")
     )(["latest", versions.edge.sha.slice(0, 7)]);
+
     core.setOutput("edge", edgeData);
-    core.setOutput("is_update", isEdgeUpdate);
+    core.setOutput("latest", latestData);
+    core.setOutput("is_update", isEdgeUpdate || isLatestUpdate);
   } else {
     core.setOutput("is_update", false);
   }
