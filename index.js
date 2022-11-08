@@ -35,20 +35,26 @@ async function main() {
     .then((response) => response.json())
     .catch((_) => null);
   if (refer) {
-    const isLatest = !R.eqProps("sha", refer.versions.latest, versions.latest);
+    const isLatestUpdate = !R.equals(
+      R.path(["versions", "latest", "sha"], refer),
+      R.path(["latest", "sha"], versions)
+    );
     const latestData = R.pipe(
-      R.map((v) => `type=raw,value=${v},enable=${isLatest}`),
+      R.map((v) => `type=raw,value=${v},enable=${isLatestUpdate}`),
       R.join("\n")
     )(["latest", versions.latest.name, versions.latest.sha.slice(0, 7)]);
     core.setOutput("latest", latestData);
-    core.setOutput("is_update", isLatest);
-    const isEdge = !R.eqProps("sha", refer.versions.edge, versions.edge);
+    core.setOutput("is_update", isLatestUpdate);
+    const isEdgeUpdate = !R.equals(
+      R.path(["versions", "edge", "sha"], refer),
+      R.path(["edge", "sha"], versions)
+    );
     const edgeData = R.pipe(
-      R.map((v) => `type=raw,value=${v},enable=${isEdge}`),
+      R.map((v) => `type=raw,value=${v},enable=${isEdgeUpdate}`),
       R.join("\n")
     )(["latest", versions.edge.sha.slice(0, 7)]);
     core.setOutput("edge", edgeData);
-    core.setOutput("is_update", isEdge);
+    core.setOutput("is_update", isEdgeUpdate);
   } else {
     core.setOutput("is_update", false);
   }
