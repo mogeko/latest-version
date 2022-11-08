@@ -61,18 +61,21 @@ function checkUpdate(refer, versions) {
 }
 
 function genDockerMeta(versions, [isLatestUpdate, isEdgeUpdate]) {
-  const latestOut = R.pipe(
-    R.props(["short_sha", "name"]),
+  const handleLatest = R.pipe(
+    // prettier-ignore
+    R.paths([["latest", "name"], ["latest", "short_sha"]]),
     R.append("latest"),
     R.map((v) => `type=raw,value=${v},enable=${isLatestUpdate}`)
-  )(R.prop("latest", versions));
-  const edgeOut = R.pipe(
+  );
+  const handleEdge = R.pipe(
     R.path(["edge", "short_sha"]),
     R.append(R.__, ["edge"]),
     R.map((v) => `type=raw,value=${v},enable=${isEdgeUpdate}`)
-  )(versions);
+  );
 
-  return R.join("\n")(R.union(latestOut, edgeOut));
+  return R.join("\n")(
+    R.converge(R.union, [handleLatest, handleEdge])(versions)
+  );
 }
 
 function getCacheKey(versions) {
@@ -93,13 +96,12 @@ async function cachingReport(data, { outDir, key, restoreKeys }) {
     await io.mkdirP(targetDir);
     await fs.writeFile(targetFile, json, { encoding: "utf8" });
     await cache.saveCache([targetDir], key);
-    return result;
   };
 
   if (await cache.restoreCache([targetDir], key, restoreKeys)) {
     return await fs.readFile(targetFile, { encoding: "utf8" });
   } else {
-    return await saveFile(data);
+    return R.tap(saveFile)(data);
   }
 }
 
