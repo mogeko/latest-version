@@ -46,7 +46,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./latest-version
+          path: ./.latest-version
 
   print:
     name: Print the result from check
