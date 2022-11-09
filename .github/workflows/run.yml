@@ -42,9 +42,9 @@ jobs:
     steps:
       - name: Print Output
         run: |
-          echo "${{ needs.check.outputs.is_update }}"
-          echo "${{ needs.check.outputs.result }}"
-          echo "${{ needs.check.outputs.docker_tags }}"
+          echo '${{ needs.check.outputs.is_update }}'
+          echo '${{ needs.check.outputs.result }}' | jq '.'
+          echo '${{ needs.check.outputs.docker_tags }}'
       - name: If is_update is true
         if: needs.check.outputs.is_update == 'true'
         run: echo "It seems to have updates."
