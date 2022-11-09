@@ -107,7 +107,6 @@ jobs:
       result: ${{ steps.check_ver.outputs.result }}
       docker_tags: ${{ steps.check_ver.outputs.docker_tags }}
     steps:
-      - uses: actions/checkout@v3
       - uses: mogeko/latest-version@v1
         id: check_ver
         with:
