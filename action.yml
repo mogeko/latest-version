@@ -13,6 +13,8 @@ inputs:
 outputs:
   is_update:
     description: "Are the any update for the tracked repo."
+  stable_ver:
+    description: "The latest stable version of the tracked repo."
   result:
     description: "The Result, a report of the latest version information of the repo being watched."
   docker_tags:

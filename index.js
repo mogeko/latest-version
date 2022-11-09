@@ -15,11 +15,13 @@ async function main() {
   const tags = await octokit.repos.listTags({ owner, repo });
   const branchs = await octokit.rest.repos.listBranches({ owner, repo });
   const versions = handleData({ tags, branchs });
+  const stable_version = getStableVersion(versions);
   const result = {
     repo: {
       name: `${owner}/${repo}`,
       url: `https://github.com/${owner}/${repo}`,
     },
+    stable_version,
     versions,
     timestamp: new Date().toISOString(),
   };
@@ -32,6 +34,7 @@ async function main() {
   core.setOutput("result", result);
   core.setOutput("docker_tags", genDockerMeta(versions, enable));
   core.setOutput("is_update", R.any(R.identity)(enable));
+  core.setOutput("stable_ver", stable_version);
 }
 
 function handleData({ tags, branchs }) {
@@ -98,6 +101,12 @@ async function cachingReport(data, { outDir, key, restoreKeys }) {
   } else {
     return R.tap(saveFile)(data);
   }
+}
+
+function getStableVersion(versions) {
+  const sha = R.path(["edge", "short_sha"])(versions);
+
+  return R.pathOr(sha, ["latest", "name"])(versions);
 }
 
 main().catch((err) => core.setFailed(err.message));

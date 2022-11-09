@@ -14,6 +14,7 @@ jobs:
     outputs:
       is_update: ${{ steps.check_ver.outputs.is_update }}
       result: ${{ steps.check_ver.outputs.result }}
+      stable_ver: ${{ steps.check_ver.outputs.stable_ver }}
       docker_tags: ${{ steps.check_ver.outputs.docker_tags }}
     steps:
       - name: Checkout
@@ -43,6 +44,7 @@ jobs:
       - name: Print Output
         run: |
           echo '${{ needs.check.outputs.is_update }}'
+          echo '${{ needs.check.outputs.stable_ver }}'
           echo '${{ needs.check.outputs.result }}' | jq '.'
           echo '${{ needs.check.outputs.docker_tags }}'
       - name: If is_update is true

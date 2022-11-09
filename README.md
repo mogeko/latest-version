@@ -32,6 +32,12 @@ Use with the `if` of GitHub Actions workflows:
 if: needs.check.outputs.is_update == 'true'
 ```
 
+### `stable_ver` output
+
+The latest stable version of the tracked repo.
+
+If `.versions.latest` exists, it is always equal to `versions.latest.name`; otherwise, degenerates to `.versions.edge.short_sha`.
+
 ### `result` output
 
 Version information report output in JSON format.
@@ -46,19 +52,20 @@ It will look like this:
     "name": "mogeko/latest-version",
     "url": "https://github.com/mogeko/latest-version"
   },
+  "stable_version": "v1.0.1",
   "versions": {
     "latest": {
-      "name": "v0.2.1",
-      "sha": "148b2013cfbd6fda243a93e9b3860975b5958d4b",
-      "short_sha": "148b201"
+      "name": "v1.0.1",
+      "sha": "f16f36e0c1786a1bf1603d0c28926dbf41fb956c",
+      "short_sha": "f16f36e"
     },
     "edge": {
       "name": "master",
-      "sha": "ceb2a3141defb1a51506fc8282cb197d231efc57",
-      "short_sha": "ceb2a31"
+      "sha": "f16f36e0c1786a1bf1603d0c28926dbf41fb956c",
+      "short_sha": "f16f36e"
     }
   },
-  "timestamp": "2022-11-08T16:21:37.793Z"
+  "timestamp": "2022-11-09T03:03:17.517Z"
 }
 ```
 
