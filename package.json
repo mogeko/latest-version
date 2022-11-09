@@ -1,6 +1,6 @@
 {
   "name": "latest-version",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "A GitHub Action that checks and outputs the latest version of the specified repo.",
   "homepage": "https://github.com/mogeko/latest-version",
   "repository": {
