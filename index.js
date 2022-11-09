@@ -96,6 +96,7 @@ async function cachingReport(data, { outDir, key }) {
     // only true when hitting the cache with `key`.
     await cache.restoreCache([targetDir], key, ["latest-version-"])
   );
+  const refer = await R.otherwise(R.always("{}"))(fs.readFile(targetFile));
 
   if (R.not(isCacheHit)) {
     core.info("It seems that the cache is missing, creating a new one...");
@@ -104,7 +105,7 @@ async function cachingReport(data, { outDir, key }) {
     await cache.saveCache([targetDir], key);
   }
 
-  return fs.readFile(targetFile).then(JSON.parse).catch(R.always({}));
+  return JSON.parse(refer);
 }
 
 function getStableVersion(versions) {
