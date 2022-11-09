@@ -10,8 +10,10 @@ const R = require("ramda");
 const octokit = new (require("@octokit/rest").Octokit)();
 
 async function main() {
+  // inputs
   const [owner, repo] = R.split("/")(core.getInput("repo", { required: true }));
 
+  // handle
   const tags = await octokit.repos.listTags({ owner, repo });
   const branchs = await octokit.rest.repos.listBranches({ owner, repo });
   const versions = handleData({ tags, branchs });
@@ -26,11 +28,11 @@ async function main() {
     timestamp: new Date().toISOString(),
   };
   const key = getCacheKey(versions);
-  const restoreKeys = ["latest-version-"];
   const outDir = "./.latest-version/";
-  const refer = await cachingReport(result, { outDir, key, restoreKeys });
+  const refer = await cachingReport(result, { outDir, key });
   const enable = checkUpdate(refer, versions);
 
+  // outputs
   core.setOutput("result", result);
   core.setOutput("docker_tags", genDockerMeta(versions, enable));
   core.setOutput("is_update", R.any(R.identity)(enable));
@@ -40,8 +42,9 @@ async function main() {
 function handleData({ tags, branchs }) {
   const latest = R.head(R.prop("data", tags));
   const edge = R.find(
-    R.pipe(R.prop("name"), R.includes(R.__, ["master", "main"]))
-  )(R.prop("data", branchs));
+    R.where({ name: R.includes(R.__, ["master", "main"]) }),
+    R.prop("data", branchs)
+  );
 
   return R.map((n) => {
     if (R.isEmpty(n)) return null;
@@ -54,7 +57,7 @@ function checkUpdate(refer, versions) {
   const checkWith = (n) => {
     const left = R.path(["versions", n, "sha"]);
     const right = R.path([n, "sha"]);
-    return R.useWith(R.equals, [left, right]);
+    return R.useWith(R.complement(R.equals), [left, right]);
   };
 
   return R.juxt([checkWith("latest"), checkWith("edge")])(refer, versions);
@@ -86,21 +89,23 @@ function getCacheKey(versions) {
   return R.join("-")(strs);
 }
 
-async function cachingReport(data, { outDir, key, restoreKeys }) {
+async function cachingReport(data, { outDir, key }) {
   const targetDir = path.resolve(outDir);
   const targetFile = path.resolve(targetDir, "index.json");
-  const saveFile = async (result) => {
-    const json = JSON.stringify(result, null, 2);
-    await io.mkdirP(targetDir);
-    await fs.writeFile(targetFile, json, { encoding: "utf8" });
-    await cache.saveCache([targetDir], key);
-  };
+  const isCacheHit = R.equals(key)(
+    // only true when hitting the cache with `key`.
+    await cache.restoreCache([targetDir], key, ["latest-version-"])
+  );
+  const refer = await R.otherwise(R.always("{}"))(fs.readFile(targetFile));
 
-  if (await cache.restoreCache([targetDir], key, restoreKeys)) {
-    return await fs.readFile(targetFile, { encoding: "utf8" });
-  } else {
-    return R.tap(saveFile)(data);
+  if (R.not(isCacheHit)) {
+    core.info("It seems that the cache is missing, creating a new one...");
+    await io.mkdirP(targetDir);
+    await fs.writeFile(targetFile, JSON.stringify(data, null, 2));
+    await cache.saveCache([targetDir], key);
   }
+
+  return JSON.parse(refer);
 }
 
 function getStableVersion(versions) {
