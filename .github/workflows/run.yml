@@ -1,4 +1,4 @@
-name: Test
+name: Try Run This Action
 on:
   push:
     branches: ["*"]
@@ -9,7 +9,7 @@ on:
 
 jobs:
   check:
-    name: Test GitHub Action
+    name: Run this GitHub Action
     runs-on: ubuntu-latest
     outputs:
       is_update: ${{ steps.check_ver.outputs.is_update }}
