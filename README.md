@@ -4,7 +4,7 @@
 
 A GitHub Action that checks and outputs the latest version of the specified repo.
 
-We require a GitHub repo name in the format `{owner}/{repo}`. Whenever this script runs, the version information of the target repo (`master`/`main` branch and `tag`s) will be checked and a **version information report** will be generated. At the same time, we will compare it with the existing reports in the [workflows cache](https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows) to determine whether the target repo is updated.
+We require a GitHub repo name in the format `{owner}/{repo}`. Whenever this script runs, the version information of the target repo (`master`/`main` branch and [Git Tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging)) will be checked and a **version information report** will be generated. At the same time, we will compare it with the existing reports in the [workflows cache](https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows) to determine whether the target repo is updated.
 
 By the way, we will output an output that can be understood by [the `tags` input option](https://github.com/marketplace/actions/docker-metadata-action#tags-input) of the GitHub Action [`docker/metadata-action`](https://github.com/marketplace/actions/docker-metadata-action). It can help you manage your Docker Image tags if you need.
 
@@ -66,7 +66,7 @@ It will look like this:
 
 An onput that can be understood by [the `tags` input option](https://github.com/marketplace/actions/docker-metadata-action#tags-input) of the GitHub Action [`docker/metadata-action`](https://github.com/marketplace/actions/docker-metadata-action) based on the version report. Includes `latest`, `edge`, version number, hash value (short) of commit, etc.
 
-Among them, `latest` and version number correspond to the `tag`s of the target repo, and `edge` corresponds to the `master`/`main` branch of the target repo.
+Among them, `latest` and version number correspond to the [Git Tags](https://git-scm.com/book/en/v2/Git-Basics-Tagging) of the target repo, and `edge` corresponds to the `master`/`main` branch of the target repo.
 
 Here is an example of this output:
 
