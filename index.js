@@ -57,7 +57,7 @@ function checkUpdate(refer, versions) {
   const checkWith = (n) => {
     const left = R.path(["versions", n, "sha"]);
     const right = R.path([n, "sha"]);
-    return R.useWith(R.equals, [left, right]);
+    return R.useWith(R.complement(R.equals), [left, right]);
   };
 
   return R.juxt([checkWith("latest"), checkWith("edge")])(refer, versions);
