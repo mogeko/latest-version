@@ -118,9 +118,9 @@ jobs:
     needs: check
     steps:
       - run: |
-          echo "${{ needs.check.outputs.is_update }}"
-          echo "${{ needs.check.outputs.result }}"
-          echo "${{ needs.check.outputs.docker_tags }}"
+          echo '${{ needs.check.outputs.is_update }}'
+          echo '${{ needs.check.outputs.result }}' | jq '.'
+          echo '${{ needs.check.outputs.docker_tags }}'
 
   docker:
     name: Build Docker Image
