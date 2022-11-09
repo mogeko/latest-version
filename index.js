@@ -26,9 +26,8 @@ async function main() {
     timestamp: new Date().toISOString(),
   };
   const key = getCacheKey(versions);
-  const restoreKeys = ["latest-version-"];
   const outDir = "./.latest-version/";
-  const refer = await cachingReport(result, { outDir, key, restoreKeys });
+  const refer = await cachingReport(result, { outDir, key });
   const enable = checkUpdate(refer, versions);
 
   core.setOutput("result", result);
@@ -86,21 +85,20 @@ function getCacheKey(versions) {
   return R.join("-")(strs);
 }
 
-async function cachingReport(data, { outDir, key, restoreKeys }) {
+async function cachingReport(data, { outDir, key }) {
   const targetDir = path.resolve(outDir);
   const targetFile = path.resolve(targetDir, "index.json");
-  const saveFile = async (result) => {
-    const json = JSON.stringify(result, null, 2);
-    await io.mkdirP(targetDir);
-    await fs.writeFile(targetFile, json, { encoding: "utf8" });
-    await cache.saveCache([targetDir], key);
-  };
+  const isUpdate = R.complement(R.eqProps(key))(
+    await cache.restoreCache([targetDir], key, ["latest-version-"])
+  );
 
-  if (await cache.restoreCache([targetDir], key, restoreKeys)) {
-    return await fs.readFile(targetFile, { encoding: "utf8" });
-  } else {
-    return R.tap(saveFile)(data);
+  if (isUpdate) {
+    await io.mkdirP(targetDir);
+    await fs.writeFile(targetFile, JSON.stringify(data, null, 2));
+    await cache.saveCache([targetDir], key);
   }
+
+  return fs.readFile(targetFile).then(JSON.parse).catch(R.always({}));
 }
 
 function getStableVersion(versions) {
