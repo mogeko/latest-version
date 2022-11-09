@@ -98,13 +98,12 @@ async function cachingReport(data, { outDir, key }) {
   );
 
   if (R.not(isCacheHit)) {
-    // if cache miss, write the report to the cache.
+    core.info("It seems that the cache is missing, creating a new one...");
     await io.mkdirP(targetDir);
     await fs.writeFile(targetFile, JSON.stringify(data, null, 2));
     await cache.saveCache([targetDir], key);
   }
 
-  // return the report from the cache.
   return fs.readFile(targetFile).then(JSON.parse).catch(R.always({}));
 }
 
