@@ -39,8 +39,9 @@ async function main() {
 function handleData({ tags, branchs }) {
   const latest = R.head(R.prop("data", tags));
   const edge = R.find(
-    R.pipe(R.prop("name"), R.includes(R.__, ["master", "main"]))
-  )(R.prop("data", branchs));
+    R.where({ name: R.includes(R.__, ["master", "main"]) }),
+    R.prop("data", branchs)
+  );
 
   return R.map((n) => {
     if (R.isEmpty(n)) return null;
