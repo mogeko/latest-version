@@ -10,8 +10,10 @@ const R = require("ramda");
 const octokit = new (require("@octokit/rest").Octokit)();
 
 async function main() {
+  // inputs
   const [owner, repo] = R.split("/")(core.getInput("repo", { required: true }));
 
+  // handle
   const tags = await octokit.repos.listTags({ owner, repo });
   const branchs = await octokit.rest.repos.listBranches({ owner, repo });
   const versions = handleData({ tags, branchs });
@@ -30,6 +32,7 @@ async function main() {
   const refer = await cachingReport(result, { outDir, key });
   const enable = checkUpdate(refer, versions);
 
+  // outputs
   core.setOutput("result", result);
   core.setOutput("docker_tags", genDockerMeta(versions, enable));
   core.setOutput("is_update", R.any(R.identity)(enable));
@@ -89,16 +92,19 @@ function getCacheKey(versions) {
 async function cachingReport(data, { outDir, key }) {
   const targetDir = path.resolve(outDir);
   const targetFile = path.resolve(targetDir, "index.json");
-  const isUpdate = R.complement(R.eqProps(key))(
+  const isCacheHit = R.equals(key)(
+    // only true when hitting the cache with `key`.
     await cache.restoreCache([targetDir], key, ["latest-version-"])
   );
 
-  if (isUpdate) {
+  if (R.not(isCacheHit)) {
+    // if cache miss, write the report to the cache.
     await io.mkdirP(targetDir);
     await fs.writeFile(targetFile, JSON.stringify(data, null, 2));
     await cache.saveCache([targetDir], key);
   }
 
+  // return the report from the cache.
   return fs.readFile(targetFile).then(JSON.parse).catch(R.always({}));
 }
 
