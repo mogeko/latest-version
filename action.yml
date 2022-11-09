@@ -4,23 +4,19 @@ inputs:
   repo:
     description: "The repo that needs to be watched."
     required: true
-  refer:
-    description: "A URL that points to the latest report so far."
-    required: false
-  out:
-    description: "A Boolean to control whether the report is output to the file."
-    required: false
-  out_dir:
-    description: "If `out` is true, output the report to this directory."
-    required: false
-    default: "./latest-version/"
+  refer: # deprecated
+    deprecationMessage: "Now we use cache to store reports, `refer` is no longer needed."
+  out: # deprecated
+    deprecationMessage: "In order to be used by cache, `out` is set to be mandatory."
+  out_dir: # deprecated
+    deprecationMessage: "For simplicity, `out_dir` will always be `./.latest-version/`."
 outputs:
   is_update:
     description: "Are the any update for the tracked repo."
   result:
     description: "The Result, a report of the latest version information of the repo being watched."
   docker_tags:
-    description: "The `tags` information that can be used by `docker/metadata-action` action"
+    description: "The `tags` information that can be used by `docker/metadata-action` action."
 runs:
   using: "node16"
   main: "index.js"

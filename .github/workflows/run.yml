@@ -1,4 +1,4 @@
-name: Test
+name: Try Run This Action
 on:
   push:
     branches: ["*"]
@@ -7,18 +7,9 @@ on:
     branches: [master]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: true
-
 jobs:
   check:
-    name: Test GitHub Action
+    name: Run this GitHub Action
     runs-on: ubuntu-latest
     outputs:
       is_update: ${{ steps.check_ver.outputs.is_update }}
@@ -31,9 +22,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v2
       - name: Lint check
         run: yarn lint
       - name: Test this actions
@@ -41,12 +29,11 @@ jobs:
         uses: ./
         with:
           repo: mogeko/latest-version
-          refer: ${{ steps.pages.outputs.base_url }}
-          out: true
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
-          path: ./.latest-version
+          name: metadata
+          path: ./.latest-version/index.json
 
   print:
     name: Print the result from check
@@ -64,15 +51,3 @@ jobs:
       - name: If is_update is false
         if: needs.check.outputs.is_update == 'false'
         run: echo "It seems to have no updates."
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    if: github.ref_name == 'master'
-    runs-on: ubuntu-latest
-    needs: check
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1

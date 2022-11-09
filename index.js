@@ -1,16 +1,16 @@
 require("./.pnp.cjs").setup(); // load pnp module
 
 const core = require("@actions/core");
+const cache = require("@actions/cache");
 const io = require("@actions/io");
-const { Octokit } = require("@octokit/rest");
-const fetch = require("node-fetch");
 const path = require("path");
 const fs = require("fs").promises;
 const R = require("ramda");
 
+const octokit = new (require("@octokit/rest").Octokit)();
+
 async function main() {
-  const octokit = new Octokit();
-  const [owner, repo] = core.getInput("repo", { required: true }).split("/");
+  const [owner, repo] = R.split("/")(core.getInput("repo", { required: true }));
 
   const tags = await octokit.repos.listTags({ owner, repo });
   const branchs = await octokit.rest.repos.listBranches({ owner, repo });
@@ -23,24 +23,15 @@ async function main() {
     versions,
     timestamp: new Date().toISOString(),
   };
+  const key = getCacheKey(versions);
+  const restoreKeys = ["latest-version-"];
+  const outDir = "./.latest-version/";
+  const refer = await cachingReport(result, { outDir, key, restoreKeys });
+  const enable = checkUpdate(refer, versions);
 
   core.setOutput("result", result);
-
-  const refer = await fetch(core.getInput("refer"))
-    .then((response) => response.json())
-    .catch((_) => null);
-  if (refer) {
-    const enable = checkUpdate(refer, versions);
-
-    core.setOutput("docker_tags", genDockerMeta(versions, enable));
-    core.setOutput("is_update", R.any(R.identity)(enable));
-  } else {
-    core.setOutput("is_update", false);
-  }
-
-  if (core.getInput("out")) {
-    await saveReport(result);
-  }
+  core.setOutput("docker_tags", genDockerMeta(versions, enable));
+  core.setOutput("is_update", R.any(R.identity)(enable));
 }
 
 function handleData({ tags, branchs }) {
@@ -50,45 +41,63 @@ function handleData({ tags, branchs }) {
   )(R.prop("data", branchs));
 
   return R.map((n) => {
-    if (!n) return null;
+    if (R.isEmpty(n)) return null;
     const [name, sha] = R.paths([["name"], ["commit", "sha"]])(n);
     return { name, sha, short_sha: R.slice(0, 7, sha) };
   })({ latest, edge });
 }
 
 function checkUpdate(refer, versions) {
-  const isLatestUpdate = !R.equals(
-    R.path(["versions", "latest", "sha"], refer),
-    R.path(["latest", "sha"], versions)
-  );
-  const isEdgeUpdate = !R.equals(
-    R.path(["versions", "edge", "sha"], refer),
-    R.path(["edge", "sha"], versions)
-  );
-  return [isLatestUpdate, isEdgeUpdate];
+  const checkWith = (n) => {
+    const left = R.path(["versions", n, "sha"]);
+    const right = R.path([n, "sha"]);
+    return R.useWith(R.equals, [left, right]);
+  };
+
+  return R.juxt([checkWith("latest"), checkWith("edge")])(refer, versions);
 }
 
 function genDockerMeta(versions, [isLatestUpdate, isEdgeUpdate]) {
-  const latestOut = R.pipe(
-    R.props(["short_sha", "name"]),
+  const handleLatest = R.pipe(
+    // prettier-ignore
+    R.paths([["latest", "name"], ["latest", "short_sha"]]),
     R.append("latest"),
     R.map((v) => `type=raw,value=${v},enable=${isLatestUpdate}`)
-  )(R.prop("latest", versions));
-  const edgeOut = R.pipe(
+  );
+  const handleEdge = R.pipe(
     R.path(["edge", "short_sha"]),
     R.append(R.__, ["edge"]),
     R.map((v) => `type=raw,value=${v},enable=${isEdgeUpdate}`)
-  )(versions);
+  );
 
-  return R.join("\n")(R.union(latestOut, edgeOut));
+  return R.join("\n")(
+    R.converge(R.union, [handleLatest, handleEdge])(versions)
+  );
 }
 
-async function saveReport(data) {
-  const outDir = path.resolve("./.latest-version/");
-  const outFile = path.resolve(outDir, "index.json");
-  const result = JSON.stringify(data, null, 2);
-  await io.mkdirP(outDir);
-  await fs.writeFile(outFile, result);
+function getCacheKey(versions) {
+  // prettier-ignore
+  const shas = R.paths([["edge", "sha"], ["latest", "sha"]])(versions);
+  const strs = R.reject(R.isEmpty, R.union(["latest", "version"], shas));
+
+  return R.join("-")(strs);
+}
+
+async function cachingReport(data, { outDir, key, restoreKeys }) {
+  const targetDir = path.resolve(outDir);
+  const targetFile = path.resolve(targetDir, "index.json");
+  const saveFile = async (result) => {
+    const json = JSON.stringify(result, null, 2);
+    await io.mkdirP(targetDir);
+    await fs.writeFile(targetFile, json, { encoding: "utf8" });
+    await cache.saveCache([targetDir], key);
+  };
+
+  if (await cache.restoreCache([targetDir], key, restoreKeys)) {
+    return await fs.readFile(targetFile, { encoding: "utf8" });
+  } else {
+    return R.tap(saveFile)(data);
+  }
 }
 
 main().catch((err) => core.setFailed(err.message));
