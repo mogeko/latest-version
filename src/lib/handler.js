@@ -25,8 +25,8 @@ exports.checkUpdate = (refer, versions) => {
   return R.juxt([checkWith("latest"), checkWith("edge")])(refer, versions);
 };
 
-exports.genStableVersion = (versions) => {
-  const sha = R.path(["edge", "short_sha"])(versions);
-
-  return R.pathOr(sha, ["latest", "name"])(versions);
-};
+exports.genStableVersion = R.ifElse(
+  R.pipe(R.prop("latest"), R.isNil),
+  R.path(["edge", "short_sha"]),
+  R.path(["latest", "name"])
+);
