@@ -40,10 +40,9 @@ async function main() {
 }
 
 function handleData({ tags, branchs }) {
-  const words = ["alpha", "beta", "canary", "dev", "unsable"];
-  const includesAny = R.curry((l, v) => R.any(R.includes(R.__, v), l));
-  const latest = R.head(
-    R.reject(R.where({ name: includesAny(words) }))(R.prop("data", tags))
+  const latest = R.find(
+    R.where({ name: R.complement(R.test)(/(alpha|beta|canary)/g) }),
+    R.prop("data", tags)
   );
   const edge = R.find(
     R.where({ name: R.includes(R.__, ["master", "main"]) }),
