@@ -12,7 +12,7 @@ inputs:
     deprecationMessage: "For simplicity, `out_dir` will always be `./.latest-version/`."
 outputs:
   is_update:
-    description: "Are the any update for the tracked repo."
+    description: "Are the any update for the tracked repo?"
   stable_ver:
     description: "The latest stable version of the tracked repo."
   result:
