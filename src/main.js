@@ -1,4 +1,4 @@
-require("./.pnp.cjs").setup(); // load pnp module
+require("../.pnp.cjs").setup(); // load pnp module
 
 const handler = require("./lib/handler");
 const cache = require("./lib/cache");
