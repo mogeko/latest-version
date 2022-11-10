@@ -9,7 +9,7 @@ exports.handleData = ({ tags, branchs }) => {
   )(R.prop("data"));
 
   return R.map((n) => {
-    if (R.isEmpty(n)) return null;
+    if (R.isNil(n)) return null;
     const [name, sha] = R.paths([["name"], ["commit", "sha"]])(n);
     return { name, sha, short_sha: R.slice(0, 7, sha) };
   })(selector(tags, branchs));
