@@ -3,11 +3,11 @@ require("../.pnp.cjs").setup(); // load pnp module
 const handler = require("./lib/handler");
 const cache = require("./lib/cache");
 const docker = require("./lib/docker");
+const github = require("./lib/github");
 const core = require("@actions/core");
-const { Octokit } = require("@octokit/rest");
 const R = require("ramda");
 
-const octokit = new Octokit();
+const octokit = github.getOctokit();
 
 async function main() {
   // inputs
@@ -15,7 +15,7 @@ async function main() {
 
   // handle
   const tags = await octokit.repos.listTags({ owner, repo });
-  const branchs = await octokit.rest.repos.listBranches({ owner, repo });
+  const branchs = await octokit.repos.listBranches({ owner, repo });
   const versions = handler.handleData({ tags, branchs });
   const stable_version = handler.genStableVersion(versions);
   const result = {
