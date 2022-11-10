@@ -21,7 +21,7 @@ outputs:
     description: "The `tags` information that can be used by `docker/metadata-action` action."
 runs:
   using: "node16"
-  main: "index.js"
+  main: "./src/main.js"
 branding:
   icon: "hash"
   color: "blue"
