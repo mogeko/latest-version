@@ -40,21 +40,18 @@ async function main() {
 }
 
 function handleData({ tags, branchs }) {
-  const words = ["alpha", "beta", "canary", "dev", "unsable"];
-  const includesAny = R.curry((l, v) => R.any(R.includes(R.__, v), l));
-  const latest = R.head(
-    R.reject(R.where({ name: includesAny(words) }))(R.prop("data", tags))
-  );
-  const edge = R.find(
-    R.where({ name: R.includes(R.__, ["master", "main"]) }),
-    R.prop("data", branchs)
-  );
+  const handle = R.on(
+    R.useWith((a, b) => ({ latest: a, edge: b }))([
+      R.find(R.where({ name: R.complement(R.test)(/(alpha|beta|canary)/g) })),
+      R.find(R.where({ name: R.includes(R.__, ["master", "main"]) })),
+    ])
+  )(R.prop("data"));
 
   return R.map((n) => {
     if (R.isEmpty(n)) return null;
     const [name, sha] = R.paths([["name"], ["commit", "sha"]])(n);
     return { name, sha, short_sha: R.slice(0, 7, sha) };
-  })({ latest, edge });
+  })(handle(tags, branchs));
 }
 
 function checkUpdate(refer, versions) {
