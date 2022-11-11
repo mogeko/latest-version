@@ -4,9 +4,13 @@
   "settings": {
     "editor.tabSize": 2,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "prettier.prettierPath": ".vscode/pnpify/prettier/index.js"
+    "prettier.prettierPath": ".yarn/sdks/prettier/index.js",
+    "search.exclude": {
+      "**/.yarn": true,
+      "**/.pnp.*": true
+    }
   },
-  "extensions": ["esbenp.prettier-vscode"],
+  "extensions": ["esbenp.prettier-vscode", "arcanis.vscode-zipfs"],
   // Set `remoteUser` to `root` to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
   "remoteUser": "node"
 }
