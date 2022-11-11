@@ -3,3 +3,6 @@
 .pnp.cjs
 .pnp.loader.mjs
 
+# code coverage
+coverage/
+
