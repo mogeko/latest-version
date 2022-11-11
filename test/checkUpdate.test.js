@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 const handler = require("../src/lib/handler");
+const R = require("ramda");
 
 describe("checkUpdate", () => {
   it("run with same version", () => {
@@ -36,5 +37,23 @@ describe("checkUpdate", () => {
     );
 
     expect(result).toEqual([false, true]);
+  });
+
+  it("calculate whether is_update true", () => {
+    const result = handler.checkUpdate(
+      { versions: { latest: { sha: "a" }, edge: { sha: "b" } } },
+      { latest: { sha: "c" }, edge: { sha: "d" } }
+    );
+
+    expect(R.any(R.identity)(result)).toEqual(true);
+  });
+
+  it("calculate whether is_update false", () => {
+    const result = handler.checkUpdate(
+      { versions: { latest: { sha: "a" }, edge: { sha: "b" } } },
+      { latest: { sha: "a" }, edge: { sha: "b" } }
+    );
+
+    expect(R.all(R.identity)(result)).toEqual(false);
   });
 });
