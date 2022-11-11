@@ -1,3 +1,8 @@
 # yarn berry
 .yarn/
 .pnp.cjs
+.pnp.loader.mjs
+
+# code coverage
+coverage/
+
