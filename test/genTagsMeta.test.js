@@ -55,9 +55,9 @@ const defaultData = {
 };
 
 const defaultTarget = [
+  "type=raw,value=latest,enable=true",
   "type=raw,value=v1.0.3,enable=true",
   "type=raw,value=33563bb,enable=true",
-  "type=raw,value=latest,enable=true",
   "type=raw,value=edge,enable=true",
   "type=raw,value=c66b051,enable=true",
 ];
