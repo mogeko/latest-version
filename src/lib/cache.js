@@ -6,11 +6,11 @@ const fs = require("fs").promises;
 const R = require("ramda");
 
 exports.genKey = (versions) => {
-  // prettier-ignore
-  const shas = R.paths([["edge", "sha"], ["latest", "sha"]])(versions);
-  const strs = R.reject(R.isEmpty, R.union(["latest", "version"], shas));
-
-  return R.join("-")(strs);
+  return R.pipe(
+    R.pipe(R.reject(R.isNil), R.uniq),
+    R.prepend("latest-version"),
+    R.join("-")
+  )(R.map(R.prop("sha"))(R.values(versions)));
 };
 
 exports.use = async (data, { outDir, key }) => {
