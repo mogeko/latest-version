@@ -16,10 +16,6 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-      - name: Check Lint
-        run: yarn lint
-      - name: Run Tests
-        run: yarn cov
+          node-version-file: package.json
+      - run: yarn lint
+      - run: yarn cov

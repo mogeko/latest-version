@@ -9,7 +9,7 @@ exports.genKey = (versions) => {
   return R.pipe(
     R.pipe(R.reject(R.isNil), R.uniq),
     R.prepend("latest-version"),
-    R.join("-")
+    R.join("-"),
   )(R.map(R.prop("sha"))(R.values(versions)));
 };
 
@@ -18,7 +18,7 @@ exports.use = async (data, { outDir, key }) => {
   const targetFile = path.resolve(targetDir, "index.json");
   const isCacheHit = R.equals(key)(
     // only true when hitting the cache with `key`.
-    await cache.restoreCache([targetDir], key, ["latest-version-"])
+    await cache.restoreCache([targetDir], key, ["latest-version-"]),
   );
   const refer = await R.otherwise(R.always("{}"))(fs.readFile(targetFile));
 

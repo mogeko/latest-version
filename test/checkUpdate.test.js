@@ -6,7 +6,7 @@ describe("checkUpdate", () => {
   it("run with same version", () => {
     const result = handler.checkUpdate(
       { versions: { latest: { sha: "a" }, edge: { sha: "b" } } },
-      { latest: { sha: "a" }, edge: { sha: "b" } }
+      { latest: { sha: "a" }, edge: { sha: "b" } },
     );
 
     expect(result).toEqual([false, false]);
@@ -15,7 +15,7 @@ describe("checkUpdate", () => {
   it("run with different version", () => {
     const result = handler.checkUpdate(
       { versions: { latest: { sha: "a" }, edge: { sha: "b" } } },
-      { latest: { sha: "c" }, edge: { sha: "d" } }
+      { latest: { sha: "c" }, edge: { sha: "d" } },
     );
 
     expect(result).toEqual([true, true]);
@@ -24,7 +24,7 @@ describe("checkUpdate", () => {
   it("run with different latest version", () => {
     const result = handler.checkUpdate(
       { versions: { latest: { sha: "a" }, edge: { sha: "b" } } },
-      { latest: { sha: "c" }, edge: { sha: "b" } }
+      { latest: { sha: "c" }, edge: { sha: "b" } },
     );
 
     expect(result).toEqual([true, false]);
@@ -33,7 +33,7 @@ describe("checkUpdate", () => {
   it("run with different edge version", () => {
     const result = handler.checkUpdate(
       { versions: { latest: { sha: "a" }, edge: { sha: "b" } } },
-      { latest: { sha: "a" }, edge: { sha: "d" } }
+      { latest: { sha: "a" }, edge: { sha: "d" } },
     );
 
     expect(result).toEqual([false, true]);
@@ -42,7 +42,7 @@ describe("checkUpdate", () => {
   it("calculate whether is_update true", () => {
     const result = handler.checkUpdate(
       { versions: { latest: { sha: "a" }, edge: { sha: "b" } } },
-      { latest: { sha: "c" }, edge: { sha: "d" } }
+      { latest: { sha: "c" }, edge: { sha: "d" } },
     );
 
     expect(R.any(R.identity)(result)).toEqual(true);
@@ -51,7 +51,7 @@ describe("checkUpdate", () => {
   it("calculate whether is_update false", () => {
     const result = handler.checkUpdate(
       { versions: { latest: { sha: "a" }, edge: { sha: "b" } } },
-      { latest: { sha: "a" }, edge: { sha: "b" } }
+      { latest: { sha: "a" }, edge: { sha: "b" } },
     );
 
     expect(R.all(R.identity)(result)).toEqual(false);

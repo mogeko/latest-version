@@ -46,7 +46,7 @@ describe("genTagsMeta", () => {
 });
 
 const geoupResult = R.groupBy(
-  R.ifElse(R.includes("false"), R.always("false"), R.always("true"))
+  R.ifElse(R.includes("false"), R.always("false"), R.always("true")),
 );
 
 const defaultData = {

@@ -5,7 +5,7 @@ exports.handleData = ({ tags, branchs }) => {
     R.useWith((a, b) => ({ latest: a, edge: b }))([
       R.find(R.where({ name: R.complement(R.test)(/(alpha|beta|canary)/g) })),
       R.find(R.where({ name: R.includes(R.__, ["master", "main"]) })),
-    ])
+    ]),
   )(R.prop("data"));
 
   return R.map((n) => {
@@ -28,5 +28,5 @@ exports.checkUpdate = (refer, versions) => {
 exports.genStableVersion = R.ifElse(
   R.pipe(R.prop("latest"), R.isNil),
   R.path(["edge", "short_sha"]),
-  R.path(["latest", "name"])
+  R.path(["latest", "name"]),
 );
