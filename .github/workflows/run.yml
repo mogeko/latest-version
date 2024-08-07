@@ -18,14 +18,14 @@ jobs:
       docker_tags: ${{ steps.check_ver.outputs.docker_tags }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.1.7
       - name: Run this actions
-        id: check_ver
         uses: ./
+        id: check_ver
         with:
           repo: mogeko/latest-version
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4.3.6
         with:
           name: metadata
           path: ./.latest-version/index.json

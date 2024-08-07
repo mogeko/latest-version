@@ -5,7 +5,7 @@ describe("handleData", () => {
   it("should return the latest and edge version", () => {
     const result = handler.handleData(defaultData);
 
-    expect(result).toEqual(defaultResult);
+    expect(result).toEqual(defaultTarget);
   });
 
   it("run handle with empty data", () => {
@@ -37,7 +37,7 @@ const defaultData = {
   },
 };
 
-const defaultResult = {
+const defaultTarget = {
   latest: {
     name: "v1.0.3",
     sha: "c66b051298dc0fc0bdd131e2",

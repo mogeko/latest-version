@@ -20,8 +20,8 @@ outputs:
   docker_tags:
     description: "The `tags` information that can be used by `docker/metadata-action` action."
 runs:
-  using: "node16"
-  main: "./src/main.js"
+  using: node20
+  main: ./src/main.js
 branding:
   icon: "hash"
   color: "blue"

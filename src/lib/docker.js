@@ -1,19 +1,10 @@
 const R = require("ramda");
 
-exports.genTagsMeta = (versions, [isLatestUpdate, isEdgeUpdate]) => {
-  const handleLatest = R.pipe(
-    // prettier-ignore
-    R.paths([["latest", "name"], ["latest", "short_sha"]]),
-    R.append("latest"),
-    R.map((v) => `type=raw,value=${v},enable=${isLatestUpdate}`)
-  );
-  const handleEdge = R.pipe(
-    R.path(["edge", "short_sha"]),
-    R.append(R.__, ["edge"]),
-    R.map((v) => `type=raw,value=${v},enable=${isEdgeUpdate}`)
-  );
+exports.genTagsMeta = ({ latest, edge }, [l, e]) => {
+  const grammar = (_e) => R.map((v) => `type=raw,value=${v},enable=${_e}`);
 
-  return R.join("\n")(
-    R.converge(R.union, [handleLatest, handleEdge])(versions)
-  );
+  return R.useWith(R.pipe(R.union, R.join("\n")), [
+    R.pipe(R.props(["name", "short_sha"]), R.prepend("latest"), grammar(l)),
+    R.pipe(R.prop("short_sha"), R.append(R.__, ["edge"]), grammar(e)),
+  ])(latest, edge);
 };
